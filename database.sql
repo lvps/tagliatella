@@ -50,6 +50,7 @@ CREATE TABLE `events` (
 CREATE TABLE `events_people` (
   `event_id` int(11) NOT NULL,
   `person_id` int(11) NOT NULL,
+  UNIQUE KEY `person_id_event_id` (`person_id`,`event_id`),
   KEY `person_id` (`person_id`),
   KEY `event_id` (`event_id`),
   CONSTRAINT `events_people_ibfk_1` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
