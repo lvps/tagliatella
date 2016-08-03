@@ -85,6 +85,8 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
             $eventxml->setAttribute('id', $event['id']);
             $eventxml = $roomxml->appendChild($eventxml);
 
+            // this stops PHPStorm from complaining, but most of these elements are just strings...
+            /** @var $event DateTime[] */
             addChild($xml, $eventxml, 'start', $event['start']->format('H:i'));
             addChild($xml, $eventxml, 'duration', $event['duration']->format('%H:%I'));
             foreach($keys as $k) {
