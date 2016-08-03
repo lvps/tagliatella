@@ -46,13 +46,18 @@ LEFT JOIN event_types ON events.type=event_types.id
 WHERE `events`.conference_id='.CONFERENCE_ID.'
 ORDER BY events.start, rooms.id');
 
-$events_by_date = [];
+$events_by_date_then_room = [];
 foreach($events as $event) {
     $event['start'] = new DateTime($event['start'], $UTC);
     $event['end'] = new DateTime($event['end'], $UTC);
     $event['duration'] = $event['start']->diff($event['end']);
 
-    $events_by_date[$event['start']->format('Y-m-d')][] = $event;
+    $day = $event['start']->format('Y-m-d');
+    if(!isset($events_by_date_then_room[$day])) {
+        $events_by_date_then_room[$day] = [];
+    }
+
+    $events_by_date_then_room[$day][$event['room']] = $event;
 }
 
 // TODO: everything else
