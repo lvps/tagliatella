@@ -10,7 +10,7 @@ $output_timezone = new DateTimeZone(OUTPUT_TIMEZONE);
 
 $dbh = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    //PDO::ATTR_EMULATE_PREPARES => false,
+    PDO::ATTR_EMULATE_PREPARES => false,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
 ]);
 
@@ -27,11 +27,7 @@ if($result->rowCount() === 0) {
 } else {
     $result = $result->fetch();
     foreach($result as $tag => $content) {
-        $xmltag = $xml->createElement($tag);
-        if($content !== NULL) {
-            $xmltag->textContent = $content;
-        }
-        $conference->appendChild($xmltag);
+        addChild($xml, $conference, $tag, $content);
     }
 }
 
@@ -66,24 +62,22 @@ foreach($events as $event) {
 
     $events_by_date_then_room[$day][$event['room']][] = $event;
 }
+$select_people = $dbh->prepare('SELECT people.name, people.id FROM people LEFT JOIN events_people ON people.id=events_people.person_id WHERE events_people.event_id = ?');
 
 $keys = ['room', 'title', 'subtitle', 'track', 'type', 'language', 'abstract', 'description'];
 $day_index = 1;
 foreach($events_by_date_then_room as $day_date => $rooms) {
-    $dayxml = $xml->createElement('day');
+    $dayxml = addChild($xml, $schedule, 'day', NULL);
     $dayxml->setAttribute('index', $day_index);
     $dayxml->setAttribute('date', $day_date);
-    $dayxml = $schedule->appendChild($dayxml);
 
     foreach($rooms as $room_name => $events) {
-        $roomxml = $xml->createElement('room');
+        $roomxml = addChild($xml, $dayxml, 'room', NULL);
         $roomxml->setAttribute('name', $room_name);
-        $roomxml = $dayxml->appendChild($roomxml);
 
         foreach($events as $event) {
-            $eventxml = $xml->createElement('event');
+            $eventxml = addChild($xml, $roomxml, 'event', NULL);
             $eventxml->setAttribute('id', $event['id']);
-            $eventxml = $roomxml->appendChild($eventxml);
 
             // this stops PHPStorm from complaining, but most of these elements are just strings...
             /** @var $event DateTime[] */
@@ -96,7 +90,17 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
             // TODO: do we need this?
             // addChild($xml, $eventxml, 'slug', '');
 
-            // TODO: add "persons"
+            if($select_people->execute([$event['id']])) {
+                $personsxml = $xml->createElement('persons');
+                $personsxml = $eventxml->appendChild($personsxml);
+
+                while($row = $select_people->fetch()) {
+                    $personxml = addChild($xml, $personsxml, 'person', $row['name']);
+                    $personxml->setAttribute('id', $row['id']);
+                }
+            } else {
+                addChild($xml, $eventxml, 'persons', NULL);
+            }
         }
     }
 
