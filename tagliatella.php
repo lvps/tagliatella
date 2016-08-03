@@ -1,5 +1,5 @@
 <?php
-// in case something goes wrong...
+// In case something goes wrong...
 http_response_code(500);
 
 require 'config.php';
@@ -45,13 +45,17 @@ ORDER BY events.start, rooms.id');
 
 $events_by_date_then_room = [];
 foreach($events as $event) {
+    // Convert "datetime" fields to PHP DateTime objects
     $event['start'] = new DateTime($event['start'], $db_timezone);
     $event['end'] = new DateTime($event['end'], $db_timezone);
+    // Assume they are in DB_TIMEZONE time zone
     $event['start']->setTimezone($output_timezone);
     $event['start']->setTimezone($output_timezone);
     $event['duration'] = $event['start']->diff($event['end']);
 
     $day = $event['start']->format('Y-m-d');
+    
+    // Add various levels to the array, if they don't already exists
     if(!isset($events_by_date_then_room[$day])) {
         $events_by_date_then_room[$day] = [];
     }
@@ -60,10 +64,14 @@ foreach($events as $event) {
         $events_by_date_then_room[$day][$event['room']] = [];
     }
 
+    // And finally, add the event itself
     $events_by_date_then_room[$day][$event['room']][] = $event;
 }
+
+// Preparing a statement once to run it multiple times later on
 $select_people = $dbh->prepare('SELECT people.name, people.id FROM people LEFT JOIN events_people ON people.id=events_people.person_id WHERE events_people.event_id = ?');
 
+// These are database fields, array keys and XML tags whose content can be taken straight from the database. Others need a little more work to convert to the correct format.
 $keys = ['room', 'title', 'subtitle', 'track', 'type', 'language', 'abstract', 'description'];
 $day_index = 1;
 foreach($events_by_date_then_room as $day_date => $rooms) {
@@ -79,17 +87,19 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
             $eventxml = addChild($xml, $roomxml, 'event', NULL);
             $eventxml->setAttribute('id', $event['id']);
 
-            // this stops PHPStorm from complaining, but most of these elements are just strings...
+            // this stops PHPStorm from complaining, but most of these elements are really just strings...
             /** @var $event DateTime[] */
+            // Same exact format, two different parameters since 'start' is a DateTime and 'duration' a DateInterval. Why, PHP, WHY?
             addChild($xml, $eventxml, 'start', $event['start']->format('H:i'));
             addChild($xml, $eventxml, 'duration', $event['duration']->format('%H:%I'));
+            // Add elements that don't need any further processing
             foreach($keys as $k) {
                 addChild($xml, $eventxml, $k, $event[$k]);
             }
 
             // TODO: do we need this?
             // addChild($xml, $eventxml, 'slug', '');
-
+            
             if($select_people->execute([$event['id']])) {
                 $personsxml = $xml->createElement('persons');
                 $personsxml = $eventxml->appendChild($personsxml);
@@ -107,6 +117,7 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
     $day_index++;
 }
 
+// If we got here, no exception has been raised. Probably.
 http_response_code(200);
 header('Content-type: text/xml');
 echo $xml->saveXML();
