@@ -57,7 +57,33 @@ foreach($events as $event) {
         $events_by_date_then_room[$day] = [];
     }
 
-    $events_by_date_then_room[$day][$event['room']] = $event;
+    if(!isset($events_by_date_then_room[$day][$event['room']])) {
+        $events_by_date_then_room[$day][$event['room']] = [];
+    }
+
+    $events_by_date_then_room[$day][$event['room']][] = $event;
+}
+
+$day_index = 1;
+foreach($events_by_date_then_room as $day_date => $rooms) {
+    $dayxml = $xml->createElement('day');
+    $dayxml->setAttribute('index', $day_index);
+    $dayxml->setAttribute('date', $day_date);
+    $dayxml = $schedule->appendChild($dayxml);
+
+    foreach($rooms as $room_name => $events) {
+        $roomxml = $xml->createElement('room');
+        $roomxml->setAttribute('name', $room_name);
+        $roomxml = $dayxml->appendChild($roomxml);
+
+        foreach($events as $event) {
+            $eventxml = $xml->createElement('event');
+            $eventxml->setAttribute('id', $event['id']);
+            $eventxml = $roomxml->appendChild($eventxml);
+        }
+    }
+
+    $day_index++;
 }
 
 // TODO: everything else
