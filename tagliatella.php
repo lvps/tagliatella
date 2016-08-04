@@ -69,7 +69,7 @@ foreach($events as $event) {
 }
 
 // These are database fields, array keys and XML tags whose content can be taken straight from the database. Others need a little more work to convert to the correct format.
-$keys = ['room', 'title', 'subtitle', 'track', 'type', 'language', 'abstract', 'description'];
+$keys = ['room', 'title', 'subtitle', 'track', 'type', 'language', 'abstract', 'description', 'slug'];
 $day_index = 1;
 //
 $events_by_id = [];
@@ -97,9 +97,6 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
             foreach($keys as $k) {
                 addChild($xml, $eventxml, $k, $event[$k]);
             }
-
-            // TODO: do we need this?
-            // addChild($xml, $eventxml, 'slug', '');
 
         }
     }
