@@ -35,7 +35,7 @@ $events = $dbh->query('SELECT `events`.id, `events`.title, `events`.subtitle, `e
 rooms.name AS room,
 event_types.name AS type,
 tracks.name AS track,
-`events`.start, `events`.`end`
+`events`.`start`, `events`.`end`
 FROM `events`
 LEFT JOIN rooms ON events.room=rooms.id
 LEFT JOIN tracks ON events.track=tracks.id

@@ -11,3 +11,4 @@ define('DB_TIMEZONE', 'UTC');
 
 // Time zone in the XML file
 define('OUTPUT_TIMEZONE', 'UTC');
+
