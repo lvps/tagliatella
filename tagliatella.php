@@ -37,9 +37,9 @@ event_types.name AS type,
 tracks.name AS track,
 `events`.`start`, `events`.`end`
 FROM `events`
-LEFT JOIN rooms ON events.room=rooms.id
-LEFT JOIN tracks ON events.track=tracks.id
-LEFT JOIN event_types ON events.type=event_types.id
+JOIN rooms ON events.room=rooms.id
+JOIN tracks ON events.track=tracks.id
+JOIN event_types ON events.type=event_types.id
 WHERE `events`.conference_id='.CONFERENCE_ID.'
 ORDER BY events.start, rooms.id');
 
