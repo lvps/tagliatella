@@ -68,12 +68,11 @@ foreach($events as $event) {
     $events_by_date_then_room[$day][$event['room']][] = $event;
 }
 
-// Preparing a statement once to run it multiple times later on
-$select_people = $dbh->prepare('SELECT people.name, people.id FROM people LEFT JOIN events_people ON people.id=events_people.person_id WHERE events_people.event_id = ?');
-
 // These are database fields, array keys and XML tags whose content can be taken straight from the database. Others need a little more work to convert to the correct format.
 $keys = ['room', 'title', 'subtitle', 'track', 'type', 'language', 'abstract', 'description'];
 $day_index = 1;
+//
+$events_by_id = [];
 foreach($events_by_date_then_room as $day_date => $rooms) {
     $dayxml = addChild($xml, $schedule, 'day', NULL);
     $dayxml->setAttribute('index', $day_index);
@@ -87,6 +86,8 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
             $eventxml = addChild($xml, $roomxml, 'event', NULL);
             $eventxml->setAttribute('id', $event['id']);
 
+            $events_by_id[$event['id']] = $eventxml;
+
             // this stops PHPStorm from complaining, but most of these elements are really just strings...
             /** @var $event DateTime[] */
             // Same exact format, two different parameters since 'start' is a DateTime and 'duration' a DateInterval. Why, PHP, WHY?
@@ -99,22 +100,28 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
 
             // TODO: do we need this?
             // addChild($xml, $eventxml, 'slug', '');
-            
-            if($select_people->execute([$event['id']])) {
-                $personsxml = $xml->createElement('persons');
-                $personsxml = $eventxml->appendChild($personsxml);
 
-                while($row = $select_people->fetch()) {
-                    $personxml = addChild($xml, $personsxml, 'person', $row['name']);
-                    $personxml->setAttribute('id', $row['id']);
-                }
-            } else {
-                addChild($xml, $eventxml, 'persons', NULL);
-            }
         }
     }
 
     $day_index++;
+}
+
+$lastid = NULL;
+$lastpersons = NULL;
+$select_people = $dbh->query('SELECT `events`.id AS `event`, people.name, people.id FROM people JOIN events_people ON people.id=events_people.person_id JOIN `events` ON `events`.id=events_people.event_id WHERE events.conference_id = '.CONFERENCE_ID.' ORDER BY `event`');
+while($row = $select_people->fetch()) {
+    // This works only because rows are sorted (ORDER BY `event`)
+    if($lastid !== $row['event']) {
+        $lastid = $row['event'];
+
+        $personsxml = $xml->createElement('persons');
+        $personsxml = $events_by_id[$row['event']]->appendChild($personsxml);
+        $lastpersons = $personsxml;
+    }
+
+    $personxml = addChild($xml, $lastpersons, 'person', $row['name']);
+    $personxml->setAttribute('id', $row['id']);
 }
 
 // If we got here, no exception has been raised. Probably.
