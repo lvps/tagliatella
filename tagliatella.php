@@ -124,10 +124,21 @@ while($row = $select_people->fetch()) {
     $personxml->setAttribute('id', $row['id']);
 }
 
+if(OUTPUT_FILE !== NULL) {
+    // Try to save, if it fails throw an exception
+    if($xml->save(OUTPUT_FILE) === false) {
+        throw new RuntimeException('Failed to write '.OUTPUT_FILE);
+    }
+}
+
 // If we got here, no exception has been raised. Probably.
-http_response_code(200);
-header('Content-type: text/xml');
-echo $xml->saveXML();
+if(OUTPUT_RESPONSE) {
+    http_response_code(200);
+    header('Content-type: text/xml; charset=utf-8');
+    echo $xml->saveXML();
+} else {
+    http_response_code(204);
+}
 exit();
 
 // ----------------------------------------------------------------------------
