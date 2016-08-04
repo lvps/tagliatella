@@ -17,5 +17,5 @@ define('OUTPUT_TIMEZONE', 'UTC');
 define('OUTPUT_FILE', 'schedule.xml');
 
 // Send the XML file as the HTTP response.
-// Set to false to send a "204 No Content" code.
+// Set to false to send a "204 No Content" status code.
 define('OUTPUT_RESPONSE', true);
