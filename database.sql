@@ -37,10 +37,10 @@ CREATE TABLE `events` (
   KEY `track` (`track`),
   KEY `type` (`type`),
   KEY `conference_id` (`conference_id`),
-  CONSTRAINT `events_ibfk_1` FOREIGN KEY (`room`) REFERENCES `rooms` (`id`),
-  CONSTRAINT `events_ibfk_2` FOREIGN KEY (`track`) REFERENCES `tracks` (`id`),
-  CONSTRAINT `events_ibfk_3` FOREIGN KEY (`type`) REFERENCES `event_types` (`id`),
-  CONSTRAINT `events_ibfk_4` FOREIGN KEY (`conference_id`) REFERENCES `conferences` (`id`) ON DELETE CASCADE
+  CONSTRAINT `events_ibfk_5` FOREIGN KEY (`conference_id`) REFERENCES `conferences` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `events_ibfk_6` FOREIGN KEY (`type`) REFERENCES `event_types` (`id`) ON UPDATE NO ACTION,
+  CONSTRAINT `events_ibfk_7` FOREIGN KEY (`track`) REFERENCES `tracks` (`id`) ON UPDATE NO ACTION,
+  CONSTRAINT `events_ibfk_8` FOREIGN KEY (`room`) REFERENCES `rooms` (`id`) ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
