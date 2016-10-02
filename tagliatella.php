@@ -152,7 +152,9 @@ exit();
 function addChild($xml, $parent, $tagname, $content) {
     $child = $xml->createElement($tagname);
     if($content !== NULL && $content !== '') {
-        $child->textContent = $content;
+        // textContent is read-only in PHP < 5.6.1
+		// nodeValue isn't standard-compliant but at least it works.
+		$child->nodeValue = $content;
     }
     return $parent->appendChild($child);
 }
