@@ -21,6 +21,6 @@ define('OUTPUT_FILE', 'schedule.xml');
 define('OUTPUT_RESPONSE', true);
 
 // Only output tags generally recognized as part of the "standard".
-// More precisely: if set to true, will ignore the persons_url and
-// events_url database fields.
+// More precisely: if set to true, will ignore the persons_url,
+// events_url and people.slug database fields.
 define('STANDARD_TAGS_ONLY', true);

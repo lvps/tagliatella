@@ -75,7 +75,6 @@ foreach($events as $event) {
 // These are database fields, array keys and XML tags whose content can be taken straight from the database. Others need a little more work to convert to the correct format.
 $keys = ['room', 'title', 'subtitle', 'track', 'type', 'language', 'abstract', 'description', 'slug'];
 $day_index = 1;
-//
 $events_by_id = [];
 foreach($events_by_date_then_room as $day_date => $rooms) {
     $dayxml = addChild($xml, $schedule, 'day', NULL);
@@ -110,7 +109,7 @@ foreach($events_by_date_then_room as $day_date => $rooms) {
 
 $lastid = NULL;
 $lastpersons = NULL;
-$select_people = $dbh->query('SELECT `events`.id AS `event`, people.name, people.id FROM people JOIN events_people ON people.id=events_people.person_id JOIN `events` ON `events`.id=events_people.event_id WHERE events.conference_id = '.CONFERENCE_ID.' ORDER BY `event`');
+$select_people = $dbh->query('SELECT `events`.id AS `event`, people.name, people.id, people.slug FROM people JOIN events_people ON people.id=events_people.person_id JOIN `events` ON `events`.id=events_people.event_id WHERE events.conference_id = '.CONFERENCE_ID.' ORDER BY `event`');
 while($row = $select_people->fetch()) {
     // This works only because rows are sorted (ORDER BY `event`)
     if($lastid !== $row['event']) {
@@ -123,6 +122,9 @@ while($row = $select_people->fetch()) {
 
     $personxml = addChild($xml, $lastpersons, 'person', $row['name']);
     $personxml->setAttribute('id', $row['id']);
+    if(!STANDARD_TAGS_ONLY && $row['slug'] != NULL) {
+        $personxml->setAttribute('slug', $row['id']);
+    }
 }
 
 if(OUTPUT_FILE !== NULL) {

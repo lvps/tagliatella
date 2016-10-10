@@ -67,6 +67,7 @@ CREATE TABLE `event_types` (
 CREATE TABLE `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT, # An integer.
   `name` varchar(100) NOT NULL, # Person name, e.g. 'John Doe'
+  `slug` varchar(100) DEFAULT NULL, # Not part of frab\Pentabarf standard. Disable STANDARD_TAGS_ONLY if you need this!
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
