@@ -20,7 +20,11 @@ $schedule = $xml->appendChild($schedule);
 $conference = $xml->createElement('conference');
 $conference = $schedule->appendChild($conference);
 
-$result = $dbh->query('SELECT title, subtitle, venue, city, `start`, `end`, days, day_change, timeslot_duration FROM conferences WHERE id='.CONFERENCE_ID);
+if(STANDARD_TAGS_ONLY) {
+    $result = $dbh->query('SELECT title, subtitle, venue, city, `start`, `end`, days, day_change, timeslot_duration FROM conferences WHERE id=' . CONFERENCE_ID);
+} else {
+    $result = $dbh->query('SELECT title, subtitle, venue, city, `start`, `end`, persons_url, events_url, days, day_change, timeslot_duration FROM conferences WHERE id=' . CONFERENCE_ID);
+}
 
 if($result->rowCount() === 0) {
     throw new LogicException('Conference '.CONFERENCE_ID.' does not exist!');

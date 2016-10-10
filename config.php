@@ -19,3 +19,8 @@ define('OUTPUT_FILE', 'schedule.xml');
 // Send the XML file as the HTTP response.
 // Set to false to send a "204 No Content" status code.
 define('OUTPUT_RESPONSE', true);
+
+// Only output tags generally recognized as part of the "standard".
+// More precisely: if set to true, will ignore the persons_url and
+// events_url database fields.
+define('STANDARD_TAGS_ONLY', true);

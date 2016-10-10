@@ -11,6 +11,8 @@ CREATE TABLE `conferences` (
   `city` varchar(100) DEFAULT NULL,
   `start` char(10) NOT NULL,
   `end` char(10) NOT NULL,
+  `persons_url` varchar(512) DEFAULT NULL, # Not part of frab\Pentabarf standard, used by ILS Companion aka LD Companion aka Generic Conference Companion (https://github.com/0iras0r/ils-companion-android). Disable STANDARD_TAGS_ONLY if you need this!
+  `events_url` varchar(512) DEFAULT NULL, # Not part of frab\Pentabarf standard, same as above. Disable STANDARD_TAGS_ONLY if you need this!
   `days` int(11) NOT NULL,
   `day_change` varchar(8) NOT NULL,
   `timeslot_duration` varchar(8) NOT NULL,
